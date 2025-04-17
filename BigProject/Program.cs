@@ -125,18 +125,15 @@ builder.Services.AddSwaggerGen(x =>
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
-        app.UseRouting();
-        app.UseSwagger();
-        app.UseSwaggerUI(c =>
+        if (app.Environment.IsProduction())
         {
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-            c.RoutePrefix = string.Empty;
-        });
-
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
         app.UseMiddleware<TokenValidationMiddleware>();
         app.UseCors("AllowAll");
         app.UseHttpsRedirection();
-        app.UseAuthentication();
+
         app.UseAuthorization();
 
         app.MapControllers();
