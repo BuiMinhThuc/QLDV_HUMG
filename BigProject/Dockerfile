@@ -4,17 +4,17 @@ WORKDIR /src
 
 # Copy solution và project files
 COPY ["BigProject.csproj", "./"]
-RUN dotnet restore
+RUN dotnet restore "BigProject.csproj"
 
 # Copy toàn bộ source code
 COPY . .
 
 # Build ứng dụng
-RUN dotnet build -c Release -o /app/build
+RUN dotnet build "BigProject.csproj" -c Release -o /app/build
 
 # Publish ứng dụng
 FROM build AS publish
-RUN dotnet publish -c Release -o /app/publish
+RUN dotnet publish "BigProject.csproj" -c Release -o /app/publish
 
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
