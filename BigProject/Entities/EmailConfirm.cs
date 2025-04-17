@@ -1,13 +1,19 @@
-﻿namespace BigProject.Entities
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace BigProject.Entities
 {
     public class EmailConfirm : EntityBase
     {
-        public int UserId {  get; set; }
+        [Required]
+        public int UserId { get; set; }
+        [Required]
         public string Code { get; set; }
-        public DateTime CreateTime {  get; set; } = DateTime.Now;
-        public DateTime Exprired {  get; set; }
-        public bool IsConfirmed { get; set; }=false;
+        public DateTime CreateTime { get; set; } = DateTime.UtcNow;
+        public DateTime Exprired { get; set; }
+        public bool IsConfirmed { get; set; } = false;
         public bool IsActiveAccount { get; set; }
-        public User? user { get; set; }
+        [ForeignKey("UserId")]
+        public User User { get; set; }
     }
 }
