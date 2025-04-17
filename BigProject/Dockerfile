@@ -14,7 +14,7 @@ RUN dotnet build "BigProject.csproj" -c Release -o /app/build
 
 # Publish ứng dụng
 FROM build AS publish
-RUN dotnet publish "BigProject.csproj" -c Release -o /app/publish
+RUN dotnet publish "BigProject.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
@@ -28,14 +28,14 @@ RUN apt-get update && \
 # Tạo thư mục cho Data Protection Keys và certificates
 RUN mkdir -p /app/keys && \
     chmod 700 /app/keys && \
-    mkdir -p /https
+    mkdir -p /https && \
+    chmod 700 /https
 
-# Cấu hình Data Protection
-ENV ASPNETCORE_DATA_PROTECTION_KEYS_DIRECTORY=/app/keys
-ENV ASPNETCORE_DATA_PROTECTION_KEY_RING_STORE_LOCATION=/app/keys
-ENV ASPNETCORE_DATA_PROTECTION_KEY_RING_STORE_TYPE=FileSystem
-ENV ASPNETCORE_DATA_PROTECTION_KEY_RING_STORE_PATH=/app/keys
-ENV ASPNETCORE_DATA_PROTECTION_KEY_RING_STORE_ENCRYPTION_ALGORITHM=AES-256-CBC
+# Tắt telemetry
+ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
+
+# Cấu hình Data Protection với đường dẫn cố định
+ENV ASPNETCORE_DATA_PROTECTION_KEYSDIR=/app/keys
 
 # Cấu hình môi trường
 ENV ASPNETCORE_ENVIRONMENT=Development
@@ -44,7 +44,7 @@ ENV ASPNETCORE_HTTPS_PORT=8443
 ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
 ENV ASPNETCORE_Kestrel__Certificates__Default__Password=YourSecurePassword123!
 
-# Cấu hình CORS cho phép tất cả
+# Cấu hình CORS
 ENV CORS__Origins=*
 ENV CORS__Headers=*
 ENV CORS__Methods=*
@@ -66,6 +66,6 @@ EXPOSE 8443
 
 # Cấu hình healthcheck
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8080/swagger/index.html || exit 1
+    CMD curl -f http://localhost:8080/health || exit 1
 
 ENTRYPOINT ["dotnet", "BigProject.dll"] 
