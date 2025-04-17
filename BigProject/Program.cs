@@ -10,11 +10,13 @@ using BigProject.Payload.Response;
         using Microsoft.IdentityModel.Tokens;
         using Microsoft.OpenApi.Models;
         using System.Text;
+using Npgsql;
 
-        var builder = WebApplication.CreateBuilder(args);
-        builder.Services.AddDbContext<AppDbContext>(opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+var builder = WebApplication.CreateBuilder(args);
+       /* builder.Services.AddDbContext<AppDbContext>(opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));*/
+builder.Services.AddDbContext<AppDbContext>(opt => opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 // Add services to the container.
-            builder.Services.AddCors(options =>
+builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll",
                     policy => policy.AllowAnyOrigin()
